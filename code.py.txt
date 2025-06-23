@@ -1,0 +1,37 @@
+import pandas as pd
+
+# Step 1: Load the dataset
+df = pd.read_csv("Supplement_Sales_Weekly_Expanded.csv")
+
+# Step 2: Check for missing values
+print("Missing values:\n", df.isnull().sum())
+
+# Step 3: Remove duplicates
+df = df.drop_duplicates()
+
+# Step 4: Standardize text fields (strip spaces, make lowercase where relevant)
+df['Product Name'] = df['Product Name'].str.strip().str.title()
+df['Category'] = df['Category'].str.strip().str.title()
+df['Location'] = df['Location'].str.strip().str.title()
+df['Platform'] = df['Platform'].str.strip().str.title()
+
+# Step 5: Convert 'Date' to datetime format
+df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
+
+# Step 6: Rename columns to be lowercase and underscore-separated
+df.columns = df.columns.str.strip().str.lower().str.replace(" ", "_")
+
+# Step 7: Check and convert data types
+numeric_columns = ['units_sold', 'price', 'revenue', 'discount', 'units_returned']
+df[numeric_columns] = df[numeric_columns].apply(pd.to_numeric, errors='coerce')
+
+# Step 8: Handle any remaining nulls if needed (fill or drop)
+df = df.dropna()  # Or use df.fillna(method='ffill') for forward fill
+
+# Step 9: Save the cleaned dataset
+df.to_csv("cleaned_sales_data.csv", index=False)
+
+# Step 10: Print summary of changes
+print("✅ Cleaning completed!")
+print("Shape after cleaning:", df.shape)
+print("Sample rows:\n", df.head())
