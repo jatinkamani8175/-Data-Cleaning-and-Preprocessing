@@ -1,46 +1,37 @@
-# Data Cleaning — Supplement Sales Data
+import pandas as pd
 
-## 📁 Dataset Used
-**File:** `Supplement_Sales_Weekly_Expanded.csv`  
-**Description:** Contains weekly sales data for health supplements including product details, price, revenue, and returns across various platforms and locations.
+# Step 1: Load the dataset
+df = pd.read_csv("Supplement_Sales_Weekly_Expanded.csv")
 
----
+# Step 2: Check for missing values
+print("Missing values:\n", df.isnull().sum())
 
-## 🎯 Objective
-To clean and preprocess the dataset by handling:
-- Missing values
-- Duplicate records
-- Inconsistent text formatting
-- Date formatting
-- Incorrect column names and data types
+# Step 3: Remove duplicates
+df = df.drop_duplicates()
 
----
+# Step 4: Standardize text fields (strip spaces, make lowercase where relevant)
+df['Product Name'] = df['Product Name'].str.strip().str.title()
+df['Category'] = df['Category'].str.strip().str.title()
+df['Location'] = df['Location'].str.strip().str.title()
+df['Platform'] = df['Platform'].str.strip().str.title()
 
-## 🔧 Cleaning Steps
+# Step 5: Convert 'Date' to datetime format
+df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
 
-1. **Loaded** the dataset using Pandas.
-2. **Removed duplicate rows** using `.drop_duplicates()`.
-3. **Standardized text fields** like product name, category, platform, and location (e.g., `.str.title()`).
-4. **Converted the date** column to proper datetime format using `pd.to_datetime()`.
-5. **Renamed columns** to lowercase and snake_case for consistency.
-6. **Converted numeric fields** like price, revenue, and units sold to proper data types.
-7. **Dropped rows with missing values** to ensure data quality.
+# Step 6: Rename columns to be lowercase and underscore-separated
+df.columns = df.columns.str.strip().str.lower().str.replace(" ", "_")
 
----
+# Step 7: Check and convert data types
+numeric_columns = ['units_sold', 'price', 'revenue', 'discount', 'units_returned']
+df[numeric_columns] = df[numeric_columns].apply(pd.to_numeric, errors='coerce')
 
-## ✅ Output
-The cleaned dataset is saved as:
+# Step 8: Handle any remaining nulls if needed (fill or drop)
+df = df.dropna()  # Or use df.fillna(method='ffill') for forward fill
 
-**`cleaned_sales_data.csv`**
+# Step 9: Save the cleaned dataset
+df.to_csv("cleaned_sales_data.csv", index=False)
 
----
-
-## 🛠 Tools Used
-- Python 3
-- Pandas Library
-
----
-
-## 👨‍💻 Author
-Data Analyst Internship Task  
-Task Name: `Data Cleaning and Preprocessing`
+# Step 10: Print summary of changes
+print("✅ Cleaning completed!")
+print("Shape after cleaning:", df.shape)
+print("Sample rows:\n", df.head())
